@@ -142,7 +142,36 @@ datamat_list{2} = cat(1, Group2_1Stack);% for more conditions do cat(Group2_1Sta
         option.clim = 95;
         %option.meancentering_type = 1; %removes grand mean (over all subjects and conditions)
         resultRotated = pls_analysis(datamat_list, num_subj_lst, num_cond,option);
- %% General Notes for interpreting PLS output       
+%% Looking at results
+
+% Plot p-values
+pval = resultRotated.perm_result.sprob
+nLV=numel(pval);
+figure;
+bar(pval,'r');
+hold on;
+h = zeros(nLV,1);
+for i=1:nLV
+    h(i)=plot(NaN,NaN, '.r');
+end
+legend(h,strcat('LV', num2str([1:nLV]'), {' - '} ,num2str(pval)));
+title(['Permuted values greater than observed, ', num2str(option.num_perm), ' permutation tests']);
+hold off;
+
+% Plot effect sizes (% crossblock covariance)
+pcov = resultRotated.s.^2 / sum(resultRotated.s.^2)
+figure;
+bar(pcov);
+hold on;
+h = zeros(nLV,1);
+for i=1:nLV
+    h(i)=plot(NaN,NaN, '.');
+end
+legend(h,strcat('LV', num2str([1:nLV]'), {' - '} ,num2str(pcov*100), '%'));
+title('Percent covariance explained');
+hold off;
+
+%% General Notes for interpreting PLS output       
             
 %%%%%%%%%%%%%%%%%%%%%%%%%%%Rotated PLS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %*Note*: result directory is listed as resultRotated. This is not standard,
