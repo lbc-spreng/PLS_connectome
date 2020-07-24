@@ -1,4 +1,4 @@
-# PLS_restingcorr
+# PLS_connectome
 This repository contains the scripts to run a partial least squares (PLS) analysis on connectivity data (fMRI) 
 
 # Usage
