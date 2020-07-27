@@ -35,24 +35,21 @@ num_boot = 1000; %number of bootstraps to perform for PLS
 % Import data from Group 1 for all conditions. Data for each condition 
 % should be formated as a 3D matrix (roiIndx,roiIndx,1:subjs_group).
 
-% Group 1 condition 1 data 
-load([dataDir,'/data/Cond1_group1/Cond1_group1.mat']); %path to data for group1 condition 1
-Group1_1Z = Group1_cond1_xyz;
+% Group 1 condition 1 matrices 
+Group1_1Z = load([dataDir,'/data/Cond1_group1/Cond1_group1.mat']); 
 
-% Group 2 condition 1 data 
-load([dataDir,'/data/Cond1_group2/Cond1_group2.mat']); %path to data for group2 condition 1
-Group2_1Z = Group2_cond1_xyz;
+% Group 2 condition 1 matrices 
+Group2_1Z = load([dataDir,'/data/Cond1_group2/Cond1_group2.mat']); 
 
 % If your analysis involved more groups and/or conditions, input data 
 % should follow a similar format as above (e.g. commented section below) 
 
-% %Group 1 conditions 2 data
-% load([dataDir,'/data/Cond2_group1/Cond2_group1.mat']); %path to data for group1 condition 2
-% Group1_2Z = Group1_cond2_xyz;
-% 
-% %Group 2 conditions 2 data
-% load([dataDir,'/data/Cond2_group2/Cond2_group2.mat']); %path to data for group2 condition 2
-% Group2_2Z = Group2_cond2_xyz
+% %Group 1 conditions 2 matrices
+% Group1_2Z = load([dataDir,'/data/Cond2_group1/Cond2_group1.mat']); 
+%  
+% %Group 2 conditions 2 matrices
+% Group2_2Z = load([dataDir,'/data/Cond2_group2/Cond2_group2.mat']); 
+
 %% Stack correlation matrices
 % For each group, we need to vectorize the lower triangle matrix. We do 
 % this by calling on the LowerTriangleIndex function to stack the lower
@@ -157,6 +154,7 @@ end
 legend(h,strcat('LV', num2str([1:nLV]'), {' - '} ,num2str(pval)));
 title(['Permuted values greater than observed, ', num2str(option.num_perm), ' permutation tests']);
 hold off;
+saveas(gcf, 'Perm_results.png');
 
 % Plot effect sizes (% crossblock covariance)
 pcov = resultRotated.s.^2 / sum(resultRotated.s.^2)
@@ -170,6 +168,20 @@ end
 legend(h,strcat('LV', num2str([1:nLV]'), {' - '} ,num2str(pcov*100), '%'));
 title('Percent covariance explained');
 hold off;
+saveas(gcf, 'EffectSizes.png');
+
+% Plot PLS correlation matrix for each latent variable 
+% network assignment for correlation matrix
+network_labels = {'visual','somatomotor','dorsal attention',...
+    'ventral attention','limbic','frotoparietal','default'}; 
+atlas = readtable(sprintf('%s',dataDir,'/atlas/Schaefer2018_400p_7Network.txt')); % index array for assigning parcels to network_labels
+[network,inds,~] = unique(atlas); 
+thrsh = 1.96; %threshold to apply to bootstrap ratio. 
+ax_limits = [-5 5]; %colorbar axes limits
+
+disp('Displaying Figures...')
+plotPLSconnectivity(resultRotated,nLV,parcel_indx,thrsh,inds',...
+    network_labels,lowTriagDataIndx,ax_limits);
 
 %% General Notes for interpreting PLS output       
             
